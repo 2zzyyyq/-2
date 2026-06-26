@@ -1,0 +1,27 @@
+# Build outputs
+Objects/
+Listings/
+
+# Keil user-specific settings
+*.uvguix.*
+
+# Debug logs
+JLinkLog.txt
+
+# Runtime Environment (generated)
+RTE/
+
+# Batch files
+*.BAT
+
+# IDE settings
+.vscode/
+
+# Shortcuts
+*.lnk
+
+# Event Recorder
+EventRecorderStub.scvd
+
+# IAR (if not used)
+IAR/
