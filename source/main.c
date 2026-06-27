@@ -219,5 +219,7 @@ int32_t main(void)
     }
     
     Flash_Data.Device_updata = 1;
- 
+ while(Flash_SectorErase(FDL_Block0) != 0)
+ {
+ };
 }
