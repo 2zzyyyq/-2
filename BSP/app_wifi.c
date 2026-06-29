@@ -27,7 +27,7 @@ uint8_t uart0_tx_buf[180]= {0};//发送给wifi串口数据
 volatile TIME_SLICE  Time;
 PCBA_TEST Pcba_test;
 LED Led ;
-#define SET_MODEL_OK 6
+#define SET_MODEL_OK 11
 #define PACK_SPEC_NUM 15
 const char *Up_Motor_Properties[5]={"7 4 0 0 ","7 4 0 1 ","7 4 0 2 ","7 4 0 3 ","7 4 0 4 "};//
 const char *Up_Motor_Properties_B[5]={"6 4 0 0 ","6 4 0 1 ","6 4 0 2 ","6 4 0 3 ","6 4 0 4 "};//
@@ -242,7 +242,7 @@ void data_handle(void)
 		{
 			if(Poweron_Set_Model_step==4)//发送mode查询
 			{
-				//Poweron_Set_Model_step++;
+				 Poweron_Set_Model_step++;
 			}
 		}
 	}
@@ -819,31 +819,40 @@ void PowerOn_ModelSet(void)
 {	
 	switch (Poweron_Set_Model_step)
 	{
+	//多发几次，
 	case 0:
-		 memcpy((uint8_t *)uart0_tx_buf, ModelChar, sizeof(ModelChar));
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+		 memcpy((uint8_t *)uart0_tx_buf, ModelChar,sizeof(ModelChar) < sizeof(uart0_tx_buf) ? sizeof(ModelChar) : sizeof(uart0_tx_buf));
 		 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(ModelChar)); //上报名称	
 		 break;
-	case 1:
+	case 5:
+		 memcpy((uint8_t *)uart0_tx_buf, ModelCheck, sizeof(ModelChar));
+		 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(ModelChar)); //查询model	
+		 break;		 
+	case 6:
 		 memcpy((uint8_t *)uart0_tx_buf, MCUversion, sizeof(MCUversion));
-		 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(MCUversion));//上报版本		 
+		 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(MCUversion));//上报版本
 		 break;
-	case 2:	
-		 memcpy((uint8_t *)uart0_tx_buf, MIIOuartarck, sizeof(MIIOuartarck));//模块通信检测
+	case 7:	
+		 memcpy((uint8_t *)uart0_tx_buf, MIIOuartarck, sizeof(MIIOuartarck));//
 		 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(MIIOuartarck));			 		
 		 break;
-	case 3:	
+	case 8:	
 		 memcpy((uint8_t *)uart0_tx_buf, ModelPid, sizeof(ModelPid)); //产品识别号
 		 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(ModelPid));		  
         	 break;
-	case 4:
+	case 9:
 		 memcpy((uint8_t *)uart0_tx_buf, MCUversion, sizeof(MCUversion));
         	 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(MCUversion));//上报版本			 	
 		 break;	
-	case 5:
-	//	 memcpy((uint8_t *)uart0_tx_buf, auto_on, sizeof(auto_on));//设置模组自动升级程序
-       	//	 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(auto_on));
+	case 10:
+		 memcpy((uint8_t *)uart0_tx_buf, auto_on, sizeof(auto_on));//设置模组自动升级程序
+       		 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(auto_on));
 		 break;	
-	default:            break;
+	default: break;
 	}
 }
 /* 变量初始化 */
