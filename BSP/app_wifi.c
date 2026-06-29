@@ -44,9 +44,9 @@ const  char MCU_TEST_CLOSE[11]     ="MCU NOTEST\r";
 const  char ModelCheck[6]         ="model\r";                                   /* 名称配置 */
 const  char ModelCharCheck[19]    ="xiaomi.airer.0004\r";                        /* 名称配置 */
 
-const  char MCUversion[17]        ="mcu_version 0007\r";                        /* 上报版本 */
-const  char ModelChar[25]         ="model xiaomi.airer.0004\r";                 /* 名称配置 */
-const  char ModelPid[26]          ="ble_config set 36240 0007\r";               /* 产品识别号 */
+const  char MCUversion[17]        ="mcu_version 0008\r";                        /* 上报版本 */
+const  char ModelChar[24]         ="model xiaomi.airer.0004\r";                 /* 名称配置 */
+const  char ModelPid[26]          ="ble_config set 36240 0008\r";               /* 产品识别号 */
 const  char MIIOuartarck[9]       ="echo off\r";                                /* 模块回显功能关 */
 /**================================ Mcu Up ==============================**/
 const  char MCUnet[4]             ="net\r";					/*询问网络状态*/
@@ -188,34 +188,25 @@ void r_uart0_protocol_init(void)
 static uint8_t mcu_common_uart_data_unpack(uint8_t data)
 {
     uint8_t ret = FALSE;
-    if(Time.Uart_Receive_Interval_time>=RECEIVE_DATA_PACKET_INTERVAL_TIME)
-    {
-        UART_RX_Count=0;
-    }
+      if(Time.Uart_Receive_Interval_time>=RECEIVE_DATA_PACKET_INTERVAL_TIME)//间隔20ms判定为下一包数据
+     {
+      	UART_RX_Count=0;
+     }
     Time.Uart_Receive_Interval_time=0;
-
-    if(UART_RX_Count >= sizeof(uart0_rx_buf))
-    {
-        UART_RX_Count=0;
-        Flag.Uart1_Err = 1;
-        ret = TRUE;
-    }
- 
-    // 先存数据，再判断结束符
     uart0_rx_buf[UART_RX_Count]=data;
-    if(uart0_rx_buf[UART_RX_Count]==0x0D)
+    if(uart0_rx_buf[UART_RX_Count]==0x0D)//结束符，一帧结束
     {
-        // 此时UART_RX_Count是当前字节的下标，帧长度 = 当前下标 + 1
-        Frame_length = UART_RX_Count + 1;
-        UART_RX_Count=0;
-        ret = TRUE;
+	    Frame_length=UART_RX_Count;
+	    UART_RX_Count=0;
+    	ret = TRUE;
     }
-    else
+    UART_RX_Count++;
+    if(UART_RX_Count >= sizeof(uart0_rx_buf)) 
     {
-        // 只有不是结束符时才自增
-        UART_RX_Count++;
+	    UART_RX_Count=0;
+  	  Flag.Uart1_Err = 1;
+	    ret = TRUE;
     }
- 
     return ret;
 }
 
@@ -240,7 +231,7 @@ void data_handle(void)
 		{
 			if(Poweron_Set_Model_step==4)
 			{
-				Poweron_Set_Model_step+=2;
+				 Poweron_Set_Model_step+=2;
 			}
 			else
 			{
@@ -251,7 +242,7 @@ void data_handle(void)
 		{
 			if(Poweron_Set_Model_step==4)//发送mode查询
 			{
-				Poweron_Set_Model_step++;
+				//Poweron_Set_Model_step++;
 			}
 		}
 	}
@@ -387,7 +378,7 @@ void data_handle(void)
 		#else  
  
 		#endif
-		memset((char *)uart0_rx_buf, 0, 80);
+		memset((char *)uart0_rx_buf, 0, sizeof (uart0_rx_buf));
 }
 
 
@@ -849,10 +840,10 @@ void PowerOn_ModelSet(void)
         	 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(MCUversion));//上报版本			 	
 		 break;	
 	case 5:
-		 memcpy((uint8_t *)uart0_tx_buf, auto_on, sizeof(auto_on));//设置模组自动升级程序
-       		 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(auto_on));
+	//	 memcpy((uint8_t *)uart0_tx_buf, auto_on, sizeof(auto_on));//设置模组自动升级程序
+       	//	 r_uart0_send_bytes((uint8_t *)uart0_tx_buf, sizeof(auto_on));
 		 break;	
-	default: break;
+	default:            break;
 	}
 }
 /* 变量初始化 */
