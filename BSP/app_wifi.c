@@ -44,9 +44,9 @@ const  char MCU_TEST_CLOSE[11]     ="MCU NOTEST\r";
 const  char ModelCheck[6]         ="model\r";                                   /* 名称配置 */
 const  char ModelCharCheck[19]    ="xiaomi.airer.0004\r";                        /* 名称配置 */
 
-const  char MCUversion[17]        ="mcu_version 0005\r";                        /* 上报版本 */
+const  char MCUversion[17]        ="mcu_version 0006\r";                        /* 上报版本 */
 const  char ModelChar[25]         ="model xiaomi.airer.0004\r";                 /* 名称配置 */
-const  char ModelPid[26]          ="ble_config set 36240 0005\r";               /* 产品识别号 */
+const  char ModelPid[26]          ="ble_config set 36240 0006\r";               /* 产品识别号 */
 const  char MIIOuartarck[9]       ="echo off\r";                                /* 模块回显功能关 */
 /**================================ Mcu Up ==============================**/
 const  char MCUnet[4]             ="net\r";					/*询问网络状态*/
@@ -105,11 +105,11 @@ void r_uart0_send_bytes(unsigned char *src_p,unsigned char dataNum)
 	uint8_t i=0;
 	for(i=0;i<dataNum;i++)
 	{
-		 	while(Uart_GetStatus(M0P_UART0,UartTxe)==FALSE)
-				{    
-					;
-				}
-        Uart_SendDataIt(M0P_UART0,*src_p++);         //调用库函数，通过UART0发送一个字母。
+				while(Uart_GetStatus(M0P_UART0,UartTxe)==FALSE)
+					{    
+						;
+					}
+						Uart_SendDataIt(M0P_UART0,*src_p++);         //调用库函数，通过UART0发送一个字母。
 
 		send_busy=1;
 	}
@@ -1112,8 +1112,7 @@ uint8_t properties_up(void)//设备状态上报
 			goto send_data;
 		}	
 	}
- 
- 
+
 	//A故障属性
 	if((Device_State_Data.Err_Byte&0x0f)!=(Up_State_Data.Err_Byte&0x0f))//
 	{
@@ -1798,6 +1797,36 @@ uint8_t properties_up(void)//设备状态上报
 			goto send_data;
 		}
 	}
+	
+		if((Device_State_Data.start_time_hour!=Up_State_Data.start_time_hour)||
+	   (Device_State_Data.start_time_min!=Up_State_Data.start_time_min)||
+	   (Device_State_Data.end_time_hour!=Up_State_Data.end_time_hour)||	
+	   (Device_State_Data.end_time_min!=Up_State_Data.end_time_min))
+	{
+		UpLoad_Buf = " 3 7 \"00:00:00-00:00:00\"";
+		memcpy((uint8_t *)uart0_tx_buf + BufNum, UpLoad_Buf, 26);
+		BufNum += 24;
+		uart0_tx_buf[BufNum-18]=Device_State_Data.start_time_hour/10+0x30;
+		uart0_tx_buf[BufNum-17]=Device_State_Data.start_time_hour%10+0x30;
+		
+		uart0_tx_buf[BufNum-15]=Device_State_Data.start_time_min/10+0x30;
+		uart0_tx_buf[BufNum-14]=Device_State_Data.start_time_min%10+0x30;
+		
+		uart0_tx_buf[BufNum-9]=Device_State_Data.end_time_hour/10+0x30;
+		uart0_tx_buf[BufNum-8]=Device_State_Data.end_time_hour%10+0x30;
+		
+		uart0_tx_buf[BufNum-6]=Device_State_Data.end_time_min/10+0x30;
+		uart0_tx_buf[BufNum-5]=Device_State_Data.end_time_min%10+0x30;				
+                
+		Up_State_Data.start_time_hour=Device_State_Data.start_time_hour;
+		Up_State_Data.start_time_min=Device_State_Data.start_time_min;
+		Up_State_Data.end_time_hour=Device_State_Data.end_time_hour;	
+		Up_State_Data.end_time_min= Device_State_Data.end_time_min;
+		
+		ret = TRUE;
+	}
+	
+
 	//提示音开关
 	if(Device_State_Data.Beep_Enable!=Up_State_Data.Beep_Enable)//
 	{	
