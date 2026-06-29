@@ -44,9 +44,9 @@ const  char MCU_TEST_CLOSE[11]     ="MCU NOTEST\r";
 const  char ModelCheck[6]         ="model\r";                                   /* 名称配置 */
 const  char ModelCharCheck[19]    ="xiaomi.airer.0004\r";                        /* 名称配置 */
 
-const  char MCUversion[17]        ="mcu_version 0006\r";                        /* 上报版本 */
+const  char MCUversion[17]        ="mcu_version 0007\r";                        /* 上报版本 */
 const  char ModelChar[25]         ="model xiaomi.airer.0004\r";                 /* 名称配置 */
-const  char ModelPid[26]          ="ble_config set 36240 0006\r";               /* 产品识别号 */
+const  char ModelPid[26]          ="ble_config set 36240 0007\r";               /* 产品识别号 */
 const  char MIIOuartarck[9]       ="echo off\r";                                /* 模块回显功能关 */
 /**================================ Mcu Up ==============================**/
 const  char MCUnet[4]             ="net\r";					/*询问网络状态*/
@@ -1654,6 +1654,24 @@ uint8_t properties_up(void)//设备状态上报
 			goto send_data;
 		}
 	}
+		//情景模式
+	if(Device_State_Data.lightmode!=Up_State_Data.lightmode)//
+	{
+	
+	  	UpLoad_Buf=" 3 4 0";
+			 memcpy((uint8_t *)uart0_tx_buf + BufNum, UpLoad_Buf, 6);
+			BufNum += 6;	
+		
+  	  uart0_tx_buf[BufNum - 1] = (Device_State_Data.lightmode);
+
+			Up_State_Data.lightmode=Device_State_Data.lightmode;
+			ret = TRUE;
+			Property_num++;
+			if(Property_num==PACK_SPEC_NUM)
+			{
+				goto send_data;
+			}
+	}
 	//照明亮度
 	if(Device_State_Data.Light_Bright!=Up_State_Data.Light_Bright)//
 	{
@@ -1824,6 +1842,11 @@ uint8_t properties_up(void)//设备状态上报
 		Up_State_Data.end_time_min= Device_State_Data.end_time_min;
 		
 		ret = TRUE;
+	  Property_num++;
+	  if(Property_num==PACK_SPEC_NUM)
+		{
+			goto send_data;
+		}
 	}
 	
 
