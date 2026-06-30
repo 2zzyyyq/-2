@@ -1,13 +1,4 @@
 
-/******************************************************************************/
-/** \file adt.h
- **
- ** Headerfile for Advance Timer functions
- ** @link ADT Group Some description @endlink
- **
- **   - 2018-04-19 Husj    First Version
- **
- ******************************************************************************/
 
 #ifndef __ADT_H__
 #define __ADT_H__

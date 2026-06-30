@@ -1,12 +1,4 @@
 
-/** \file interrupts_hc32l13x.h
- **
- ** Interrupt common define.
- ** @link IRQGroup Some description @endlink
- **
- **   - 2019-03-01  1.0  Lux     First version.
- **
- ******************************************************************************/
 #ifndef __INTERRUPTS_HC32L13X_H__
 #define __INTERRUPTS_HC32L13X_H__
 
