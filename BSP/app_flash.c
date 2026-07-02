@@ -423,9 +423,9 @@ void read_data(void)
     /* 如果块0无数据或出错，初始化默认值 */
     if((i == 0)||Flash_Data.Max_Light_Value>100)//内存块0无数据或出错
     {
-			__disable_irq();
+			  __disable_irq();
         Flash_SectorErase(FDL_Block0);//block 0
-			__enable_irq();
+			 __enable_irq();
         Flash_Data.Check = 0X5AA5;
         
         Flash_Data.Remote_Control_Num = 0;
@@ -456,18 +456,20 @@ void read_data(void)
 
     }	
     
-    /* 读取块1的Flash数据 — 从后往前搜索最新有效数据 */
+  /* 读取块1的Flash数据 — 从后往前搜索最新有效数据 */
     for(i = FDL_BLOCK1_ONCE_MAX_WRITE_NUM; i > 0; i--)
     {
         Read_FLASH_MUIData(FDL_Block1 + (i - 1) * sizeof(Ell_Data), (uint8_t*)&Ell_Data, sizeof(Ell_Data));
 
-        /* 校验位置数据是否在有效物理范围内（1000~4000） */
-        if (Ell_Data.Motor_Current_Position >= (UP_POSITION_VALUE-100) &&
-            Ell_Data.Motor_Current_Position <= (DOWN_POSITION_VALUE + 100) &&
-            Ell_Data.B_Motor_Current_Position >= (UP_POSITION_VALUE-100) &&
-            Ell_Data.B_Motor_Current_Position <= (DOWN_POSITION_VALUE + 100))
+    
+        if (Ell_Data.Motor_Current_Position== 0xffff 
+           ||Ell_Data.B_Motor_Current_Position== 0xffff)
         {
-            /* 找到有效数据 */
+           
+        }else
+				{
+				
+				   /* 找到有效数据 */
             if(i == FDL_BLOCK1_ONCE_MAX_WRITE_NUM)  // 槽位写满，擦除后重新整理
             {
 									__disable_irq();
@@ -481,12 +483,13 @@ void read_data(void)
                 FDL_Block1_Save_Times = i - 1;
             }
             break;
-        }
+ 
+				}
         /* 数据不在有效范围内 → continue，继续搜索下一个槽位 */
     }
 
-    /* 所有槽位均无有效数据，初始化默认值 */
-    if(i == 0)
+    /* 所有槽位均无有效数据或者位置信息不对，初始化默认值 */
+    if(i == 0||Ell_Data.Motor_Current_Position<(800)||Ell_Data.B_Motor_Current_Position<(800))
     {
 				__disable_irq();
         Flash_SectorErase(FDL_Block1);
@@ -497,7 +500,6 @@ void read_data(void)
         Ell_Data.B_Motor_Current_Position = DOWN_POSITION_VALUE + 100;
         FDL_Block1_Save_Times = 0;
     }
-    
     /* 设置电子限位值 */
     set_down_limit_value = Flash_Data.Electronic_Down_Limit * ONE_PERCENT_PULSE + UP_POSITION_VALUE;//电子下限位对应霍尔脉冲数
     B_set_down_limit_value = Flash_Data.B_electronic_down_limit * ONE_PERCENT_PULSE + UP_POSITION_VALUE;//电子下限位对应霍尔脉冲数

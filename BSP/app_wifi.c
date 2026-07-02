@@ -44,9 +44,9 @@ const  char MCU_TEST_CLOSE[11]     ="MCU NOTEST\r";
 const  char ModelCheck[6]         ="model\r";                                   /* 名称配置 */
 const  char ModelCharCheck[19]    ="xiaomi.airer.0004\r";                        /* 名称配置 */
 
-const  char MCUversion[17]        ="mcu_version 0008\r";                        /* 上报版本 */
+const  char MCUversion[17]        ="mcu_version 0009\r";                        /* 上报版本 */
 const  char ModelChar[24]         ="model xiaomi.airer.0004\r";                 /* 名称配置 */
-const  char ModelPid[26]          ="ble_config set 36240 0008\r";               /* 产品识别号 */
+const  char ModelPid[26]          ="ble_config set 36240 0009\r";               /* 产品识别号 */
 const  char MIIOuartarck[9]       ="echo off\r";                                /* 模块回显功能关 */
 /**================================ Mcu Up ==============================**/
 const  char MCUnet[4]             ="net\r";					/*询问网络状态*/
